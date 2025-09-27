@@ -1,53 +1,16 @@
-import axiosClient from "@/lib/axiosClient";
+import axiosClient from "@/utils/axiosClient";
 
-// Lấy danh sách tất cả người dùng (có thể truyền params để lọc, phân trang)
-export const getUsers = async (params) => {
-    try {
-        return await axiosClient.get("/users", { params });
-    } catch (error) {
-        throw error;
-    }
-};
+export const getUsers = () => axiosClient.get("/users");
 
-// Lấy thông tin chi tiết người dùng theo ID
-export const getUserById = async (id, params) => {
-    try {
-        return await axiosClient.get(`/users/${id}`, { params });
-    } catch (error) {
-        throw error;
-    }
-};
+export const getUserById = (id) => axiosClient.get(`/users/${id}`);
 
-// Cập nhật thông tin người dùng
-export const updateUser = async (id, data, params) => {
-    try {
-        return await axiosClient.put(`/users/${id}`, {
-            params,
-            data,
-        });
-    } catch (error) {
-        console.error("❌ API updateUser thất bại:", error.response?.data || error.message);
-        throw error;
-    }
-};
+export const createUser = (data) => axiosClient.post("/users", data);
 
-// Xoá người dùng theo ID
-export const deleteUser = async (id) => {
-    try {
-        return await axiosClient.delete(`/users/${id}`);
-    } catch (error) {
-        throw error;
-    }
-};
+export const updateUser = (id, data) => axiosClient.put(`/users/${id}`, data);
 
-// Tạo mới người dùng
-export const createUser = async (data) => {
-    try {
-        const payload = { data }; // Strapi format
-        const response = await axiosClient.post("/users", payload);
-        return response.data;
-    } catch (error) {
-        console.error("❌ API createUser lỗi:", error.response?.data || error.message);
-        throw error;
-    }
-};
+export const deleteUser = (id) => axiosClient.delete(`/users/${id}`);
+
+// Auth (ví dụ login/register)
+export const login = (credentials) => axiosClient.post("/users/login", credentials);
+
+export const register = (data) => axiosClient.post("/users/register", data);

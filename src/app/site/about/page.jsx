@@ -207,8 +207,8 @@ export default function BookingSchedulePage() {
                             }
                             title={title}
                             className={`border border-gray-300 px-2 py-2 text-center cursor-pointer select-none transition-colors duration-200 ${isBooked
-                                ? "bg-red-500 text-white font-bold"
-                                : "bg-green-100 text-green-700 hover:bg-green-200"
+                              ? "bg-red-500 text-white font-bold"
+                              : "bg-green-100 text-green-700 hover:bg-green-200"
                               }`}
                           >
                             {isBooked ? "Đã đặt" : "Trống"}
@@ -257,8 +257,8 @@ export default function BookingSchedulePage() {
                   value={form.name}
                   onChange={(e) => setFieldValue("name", e.target.value)}
                   className={`w-full px-3 py-2 border rounded-xl focus:outline-none focus:ring-2 ${errors.name
-                      ? "border-red-500 focus:ring-red-500"
-                      : "focus:ring-green-600"
+                    ? "border-red-500 focus:ring-red-500"
+                    : "focus:ring-green-600"
                     }`}
                   placeholder="Nguyễn Văn A"
                 />
@@ -276,8 +276,8 @@ export default function BookingSchedulePage() {
                   value={form.phone}
                   onChange={(e) => setFieldValue("phone", e.target.value)}
                   className={`w-full px-3 py-2 border rounded-xl focus:outline-none focus:ring-2 ${errors.phone
-                      ? "border-red-500 focus:ring-red-500"
-                      : "focus:ring-green-600"
+                    ? "border-red-500 focus:ring-red-500"
+                    : "focus:ring-green-600"
                     }`}
                   placeholder="09xx xxx xxx"
                 />
@@ -296,8 +296,8 @@ export default function BookingSchedulePage() {
                   value={form.start}
                   onChange={(e) => setFieldValue("start", e.target.value)}
                   className={`w-full px-3 py-2 border rounded-xl focus:outline-none focus:ring-2 ${errors.start
-                      ? "border-red-500 focus:ring-red-500"
-                      : "focus:ring-green-600"
+                    ? "border-red-500 focus:ring-red-500"
+                    : "focus:ring-green-600"
                     }`}
                   step={60 * 60}
                 />
@@ -316,8 +316,8 @@ export default function BookingSchedulePage() {
                   value={form.end}
                   onChange={(e) => setFieldValue("end", e.target.value)}
                   className={`w-full px-3 py-2 border rounded-xl focus:outline-none focus:ring-2 ${errors.end
-                      ? "border-red-500 focus:ring-red-500"
-                      : "focus:ring-green-600"
+                    ? "border-red-500 focus:ring-red-500"
+                    : "focus:ring-green-600"
                     }`}
                   step={60 * 60}
                 />
