@@ -1,17 +1,13 @@
-// src/components/site/auth/LoginForm.jsx
 "use client";
 import React, { useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import { login, me } from "@/services/authService";
-import { useRouter } from "next/navigation";
 import "react-toastify/dist/ReactToastify.css";
 
-
 const LoginForm = () => {
-  const router = useRouter();
   const [formData, setFormData] = useState({
-    identifier: '',
-    password: '',
+    identifier: "",
+    password: "",
     remember: true,
   });
 
@@ -19,62 +15,64 @@ const LoginForm = () => {
     const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value,
+      [name]: type === "checkbox" ? checked : value,
     }));
   };
 
   const validate = () => {
-    const { identifier, password, remember } = formData;
+    const { identifier, password } = formData;
     const errors = [];
-    // Kiểm tra trường bắt buộc
-    if (!identifier || !password) {
-      errors.push('Vui lòng nhập đầy đủ thông tin');
-    }
-    // Trả về tất cả lỗi (nếu có)
+    if (!identifier || !password) errors.push("Vui lòng nhập đầy đủ thông tin");
     return errors.length > 0 ? errors : null;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const error = validate();
-    if (error) {
-      toast.error(error.join('.'));
+    const errors = validate();
+    if (errors) {
+      toast.error(errors.join(". "));
+      return;
     }
-    else
-      try {
-        let data = await login(formData.identifier, formData.password);
-        const { jwt, user } = data;
-        localStorage.setItem("jwt", jwt);
-        localStorage.setItem("user", JSON.stringify(user));
-        const userInfo = await me();
-        localStorage.setItem("role", userInfo.role.name);
-        // Lưu role vào cookie
-        document.cookie = `role=${userInfo.role.name}; path=/;`;
 
-        if (userInfo.role.name == 'admin-web')
-          window.location.href = '/admin'
-        else if (userInfo.role.name == 'Authenticated')
-          window.location.href = '/site'
+    try {
+      const res = await login(formData.identifier, formData.password);
+      if (res?.token) {
+        // Lưu token và user
+        localStorage.setItem("jwt", res.token);
+        localStorage.setItem("user", JSON.stringify(res.user));
+        localStorage.setItem("role", res.user.role);
 
-      } catch (err) {
-        console.log('Error:', err)
-        toast.error(err.message || 'Đăng nhập thất bại');
+        toast.success("Đăng nhập thành công!");
+
+        // chuyển hướng theo role
+        if (res.user.role === "admin") window.location.href = "/admin";
+        else window.location.href = "/site";
+      } else {
+        toast.error(res.message || "Đăng nhập thất bại!");
       }
+    } catch (err) {
+      toast.error(err.message || "Đăng nhập thất bại!");
+    }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-amber-100 to-amber-500 p-4">
+      <ToastContainer />
       <div className="w-full max-w-4xl bg-white rounded-xl shadow-lg overflow-hidden">
         <div className="grid grid-cols-1 md:grid-cols-2">
           <div className="bg-gradient-to-br from-amber-300 to-amber-500 flex flex-col justify-center items-center text-white p-10">
             <h1 className="text-4xl md:text-5xl font-bold mb-2">Hà Vũ Đông</h1>
-            <p className="text-lg md:text-xl font-medium">Chào mừng bạn quay lại</p>
+            <p className="text-lg md:text-xl font-medium">
+              Chào mừng bạn quay lại
+            </p>
           </div>
+
           <div className="p-8 bg-gradient-to-br to-blue-500 from-red-500">
-            <ToastContainer />
             <form className="space-y-5" onSubmit={handleSubmit}>
               <div>
-                <label className="block text-gray-700 font-semibold mb-1">Identifier</label>
+                <label className="block text-white font-semibold mb-1">
+                  Tài khoản hoặc Email
+                </label>
                 <input
                   type="text"
                   name="identifier"
@@ -85,7 +83,9 @@ const LoginForm = () => {
                 />
               </div>
               <div>
-                <label className="block text-gray-700 font-semibold mb-1">Password</label>
+                <label className="block text-white font-semibold mb-1">
+                  Mật khẩu
+                </label>
                 <input
                   type="password"
                   name="password"
@@ -98,17 +98,12 @@ const LoginForm = () => {
               <div className="flex items-center space-x-2">
                 <input
                   type="checkbox"
-                  name="rememberMe"
-                  checked={formData.rememberMe}
-                  onChange={() => setFormData((prev) => ({ ...prev, rememberMe: !prev.rememberMe }))}
+                  name="remember"
+                  checked={formData.remember}
+                  onChange={handleChange}
                   className="checkbox checkbox-amber-500"
                 />
-                <label className="text-sm text-gray-700">Ghi nhớ đăng nhập</label>
-              </div>
-              <div className="text-right">
-                <a href="/forgot-password" className="text-sm text-amber-600 hover:underline">
-                  Quên mật khẩu?
-                </a>
+                <label className="text-sm text-white">Ghi nhớ đăng nhập</label>
               </div>
               <button
                 type="submit"
@@ -116,9 +111,12 @@ const LoginForm = () => {
               >
                 Đăng nhập
               </button>
-              <p className="text-sm text-center text-gray-600 mt-4">
+              <p className="text-sm text-center text-white mt-4">
                 Chưa có tài khoản?{" "}
-                <a href="/register" className="text-amber-600 font-semibold hover:underline">
+                <a
+                  href="/site/auth/register"
+                  className="text-yellow-300 font-semibold hover:underline"
+                >
                   Đăng ký ngay
                 </a>
               </p>
