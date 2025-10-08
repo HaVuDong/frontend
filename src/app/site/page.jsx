@@ -1,9 +1,9 @@
 "use client";
 import { useEffect, useState } from "react";
-import HeroSection from "@/components/Site/HeroSection";
-import ImageGallery from "@/components/Site/ImageGallery";
-import TournamentCard from "@/components/Site/TournamentCard";
-import PromotionCard from "@/components/Site/PromotionCard";
+import HeroSection from "@/components/site/HeroSection";
+import ImageGallery from "@/components/site/ImageGallery";
+import TournamentCard from "@/components/site/TournamentCard";
+import PromotionCard from "@/components/site/PromotionCard";
 import Footer from "@/components/site/layout/Footer";
 import axiosClient from "@/utils/axiosClient";
 

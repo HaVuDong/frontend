@@ -3,10 +3,15 @@ const nextConfig = {
   images: {
     remotePatterns: [
       {
-        protocol: "http",
-        hostname: "localhost",
-        port: "8017",
-        pathname: "/v1/uploads/**",
+        protocol: 'https',
+        hostname: 'backend-kker.onrender.com',
+        pathname: '/uploads/**', // đúng với đường dẫn ảnh của bạn
+      },
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '8017',
+        pathname: '/uploads/**', // để dev local vẫn hoạt động
       },
     ],
   },

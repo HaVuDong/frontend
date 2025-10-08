@@ -40,18 +40,21 @@ export default function ImageGallery() {
       </div>
     );
 
+  // ✅ Lấy base URL từ .env
+  const BASE_URL = process.env.NEXT_PUBLIC_API_URL?.replace("/v1", "");
+
   return (
     <section className="max-w-7xl mx-auto py-16 px-6 font-sans">
-      {/* Tiêu đề */}
       <h2 className="text-3xl md:text-4xl font-extrabold text-green-700 mb-10 text-center tracking-tight drop-shadow-sm">
         Hình Ảnh Sân Bóng NĐ
       </h2>
 
-      {/* Danh sách ảnh */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
         {fields.map((field, i) => {
-          const imgUrl = field.images?.length
-            ? `${process.env.NEXT_PUBLIC_API_URL}${field.images[0]}`
+          // ✅ Sửa URL ảnh cho đúng backend
+          const firstImage = field.images?.[0];
+          const imgUrl = firstImage
+            ? `${BASE_URL}${firstImage.startsWith("/") ? firstImage : `/${firstImage}`}`
             : "/image/no-image.jpg";
 
           return (
@@ -68,11 +71,9 @@ export default function ImageGallery() {
                   alt={field.name || "Sân bóng"}
                   className="object-cover w-full h-64 transform group-hover:scale-105 transition-transform duration-500"
                 />
-                {/* Overlay hiệu ứng mờ khi hover */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
               </div>
 
-              {/* Thông tin sân */}
               <div className="p-5 text-center">
                 <h3 className="text-xl font-semibold text-green-800 group-hover:text-green-600 transition-colors">
                   {field.name}
