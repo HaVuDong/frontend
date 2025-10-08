@@ -31,7 +31,7 @@ const Sidebar = () => {
             <ul className="pl-8 mt-1 space-y-1 text-sm">
               <li>
                 <Link
-                  href="/admin/courts"
+                  href="/admin/fields"
                   className="block text-white px-2 py-1 rounded hover:bg-green-700"
                 >
                   Danh sách sân
@@ -39,7 +39,7 @@ const Sidebar = () => {
               </li>
               <li>
                 <Link
-                  href="/admin/courts/add"
+                  href="/admin/fields/add"
                   className="block text-white px-2 py-1 rounded hover:bg-green-700"
                 >
                   Thêm sân
@@ -58,7 +58,7 @@ const Sidebar = () => {
             <ul className="pl-8 mt-1 space-y-1 text-sm">
               <li>
                 <Link
-                  href="/admin/schedule"
+                  href="/admin/bookings"
                   className="block text-white px-2 py-1 rounded hover:bg-green-700"
                 >
                   Danh sách đặt sân
@@ -66,7 +66,7 @@ const Sidebar = () => {
               </li>
               <li>
                 <Link
-                  href="/admin/schedule/add"
+                  href="/admin/bookings/add"
                   className="block text-white px-2 py-1 rounded hover:bg-green-700"
                 >
                   Chỉnh sửa lịch đặt
@@ -75,34 +75,7 @@ const Sidebar = () => {
             </ul>
           </details>
         </li>
-
-        {/* Quản lý đơn hàng (dịch vụ, nước uống...) */}
-        <li>
-          <details className="group" open>
-            <summary className="flex text-white font-bold items-center gap-3 px-4 py-2 rounded-lg cursor-pointer hover:bg-green-800">
-              <FaFirstOrder /> Quản lý dịch vụ
-            </summary>
-            <ul className="pl-8 mt-1 space-y-1 text-sm">
-              <li>
-                <Link
-                  href="/admin/services"
-                  className="block text-white px-2 py-1 rounded hover:bg-green-700"
-                >
-                  Danh sách dịch vụ
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/admin/services/add"
-                  className="block text-white px-2 py-1 rounded hover:bg-green-700"
-                >
-                  Thêm dịch vụ
-                </Link>
-              </li>
-            </ul>
-          </details>
-        </li>
-
+        
         {/* Quản lý người dùng */}
         <li>
           <details className="group" open>

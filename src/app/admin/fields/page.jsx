@@ -10,13 +10,15 @@ import {
   FaSearch,
   FaToggleOn,
   FaToggleOff,
-  FaCalendarAlt,
+  FaEye,
 } from "react-icons/fa";
+import { getFields, deleteField, updateField } from "@/services/fieldService";
+import { toast } from "react-toastify";
 
 const PAGE_SIZE = 10;
 
-export default function CourtsPage() {
-  const [courts, setCourts] = useState([]);
+export default function FieldsPage() {
+  const [fields, setFields] = useState([]);
   const [total, setTotal] = useState(0);
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
@@ -28,7 +30,7 @@ export default function CourtsPage() {
     [total]
   );
 
-  // debounce search text -> query
+  // debounce search
   const [searchText, setSearchText] = useState("");
   useEffect(() => {
     const t = setTimeout(() => {
@@ -44,25 +46,26 @@ export default function CourtsPage() {
     async function load() {
       setLoading(true);
       try {
-        const params = new URLSearchParams({
-          query,
-          page: String(page),
-          limit: String(PAGE_SIZE),
-        });
-        // TODO: nếu dùng PHP backend, đổi URL dưới đây cho phù hợp
-        const res = await fetch(`/api/courts?${params.toString()}`, {
-          cache: "no-store",
-        });
-        if (!res.ok) throw new Error("Failed to fetch courts");
-        const data = await res.json();
+        const res = await getFields();
         if (!cancelled) {
-          setCourts(data.items || []);
-          setTotal(data.total ?? (data.items ? data.items.length : 0));
+          // nếu backend trả {success, data}, lấy data ra
+          const items = res.data?.data || res.data || res || [];
+          const filtered = query
+            ? items.filter((f) =>
+              f.name.toLowerCase().includes(query.toLowerCase())
+            )
+            : items;
+
+          const start = (page - 1) * PAGE_SIZE;
+          const paginated = filtered.slice(start, start + PAGE_SIZE);
+
+          setFields(paginated);
+          setTotal(filtered.length);
         }
       } catch (e) {
-        console.error(e);
+        console.error("❌ Lỗi tải sân:", e);
         if (!cancelled) {
-          setCourts([]);
+          setFields([]);
           setTotal(0);
         }
       } finally {
@@ -75,35 +78,36 @@ export default function CourtsPage() {
     };
   }, [query, page]);
 
+  // Xóa sân
   async function handleDelete(id) {
-    if (!confirm("Xóa sân này? Hành động không thể hoàn tác.")) return;
+    if (!confirm("Bạn chắc chắn muốn xóa sân này?")) return;
     setBusyId(id);
     try {
-      const res = await fetch(`/api/courts/${id}`, { method: "DELETE" });
-      if (!res.ok) throw new Error("Delete failed");
-      setCourts((prev) => prev.filter((c) => c.id !== id));
+      await deleteField(id);
+      setFields((prev) => prev.filter((f) => f._id !== id));
       setTotal((t) => Math.max(0, t - 1));
+      toast.success("Đã xóa sân thành công");
     } catch (e) {
-      alert("Xóa thất bại. Vui lòng thử lại.");
+      console.error(e);
+      toast.error("Xóa thất bại, thử lại sau!");
     } finally {
       setBusyId(null);
     }
   }
 
-  async function handleToggleActive(court) {
-    setBusyId(court.id);
+  // Toggle trạng thái hoạt động
+  async function handleToggleActive(field) {
+    setBusyId(field._id);
     try {
-      const res = await fetch(`/api/courts/${court.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ active: !court.active }),
-      });
-      if (!res.ok) throw new Error("Toggle failed");
-      setCourts((prev) =>
-        prev.map((c) => (c.id === court.id ? { ...c, active: !c.active } : c))
+      await updateField(field._id, { isActive: !field.isActive });
+      setFields((prev) =>
+        prev.map((f) =>
+          f._id === field._id ? { ...f, isActive: !f.isActive } : f
+        )
       );
+      toast.success("Cập nhật trạng thái thành công");
     } catch (e) {
-      alert("Cập nhật trạng thái thất bại.");
+      toast.error("Không thể cập nhật trạng thái!");
     } finally {
       setBusyId(null);
     }
@@ -122,16 +126,22 @@ export default function CourtsPage() {
           <FaFutbol className="text-2xl text-green-600" />
           <h1 className="text-2xl font-bold">Quản lý sân bóng</h1>
         </div>
+        <Link
+          href="/admin/fields/add"
+          className="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg shadow"
+        >
+          <FaPlus /> Thêm sân
+        </Link>
       </div>
 
-      {/* Toolbar: Search */}
+      {/* Search */}
       <div className="flex gap-3 mb-4">
         <div className="relative flex-1 max-w-lg">
           <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 opacity-60" />
           <input
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
-            placeholder="Tìm theo tên, địa chỉ, loại sân..."
+            placeholder="Tìm sân theo tên, vị trí..."
             className="w-full pl-10 pr-3 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-green-600"
           />
         </div>
@@ -144,8 +154,8 @@ export default function CourtsPage() {
             <thead className="bg-gray-50 text-gray-700">
               <tr>
                 <th className="text-left px-4 py-3">Tên sân</th>
-                <th className="text-left px-4 py-3">Địa điểm</th>
                 <th className="text-left px-4 py-3">Loại sân</th>
+                <th className="text-left px-4 py-3">Địa điểm</th>
                 <th className="text-right px-4 py-3">Giá/giờ</th>
                 <th className="text-center px-4 py-3">Trạng thái</th>
                 <th className="text-right px-4 py-3">Hành động</th>
@@ -158,60 +168,65 @@ export default function CourtsPage() {
                     Đang tải danh sách sân...
                   </td>
                 </tr>
-              ) : courts.length === 0 ? (
+              ) : fields.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="px-4 py-12 text-center text-gray-500">
                     Không có dữ liệu phù hợp.
                   </td>
                 </tr>
               ) : (
-                courts.map((c) => (
-                  <tr key={c.id} className="border-t">
-                    <td className="px-4 py-3 font-medium">{c.name}</td>
-                    <td className="px-4 py-3">{c.location || "-"}</td>
-                    <td className="px-4 py-3">{c.type || "5v5 / 7v7 / 11v11"}</td>
+                fields.map((f) => (
+                  <tr key={f._id} className="border-t">
+                    <td className="px-4 py-3 font-medium">{f.name}</td>
+                    <td className="px-4 py-3">{f.type}</td>
+                    <td className="px-4 py-3">{f.location || "-"}</td>
+                    <td className="px-4 py-3">
+                      {f.images?.length ? (
+                        <img
+                          src={`${process.env.NEXT_PUBLIC_API_URL}${f.images[0]}`}
+                          alt={f.name}
+                          className="w-16 h-16 object-cover rounded-lg border"
+                        />
+                      ) : (
+                        <span className="text-gray-400 text-sm">Không có ảnh</span>
+                      )}
+                    </td>
                     <td className="px-4 py-3 text-right">
-                      {typeof c.price_per_hour === "number"
-                        ? c.price_per_hour.toLocaleString("vi-VN") + " đ"
+                      {f.pricePerHour
+                        ? f.pricePerHour.toLocaleString("vi-VN") + " đ"
                         : "-"}
                     </td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center justify-center">
-                        <button
-                          onClick={() => handleToggleActive(c)}
-                          disabled={busyId === c.id}
-                          className={`inline-flex items-center gap-2 px-3 py-1 rounded-full ${
-                            c.active
-                              ? "bg-green-100 text-green-700"
-                              : "bg-gray-100 text-gray-600"
+                    <td className="px-4 py-3 text-center">
+                      <button
+                        onClick={() => handleToggleActive(f)}
+                        disabled={busyId === f._id}
+                        className={`inline-flex items-center gap-2 px-3 py-1 rounded-full ${f.isActive
+                            ? "bg-green-100 text-green-700"
+                            : "bg-gray-100 text-gray-600"
                           }`}
-                          title={c.active ? "Đang hoạt động" : "Ngừng hoạt động"}
-                        >
-                          {c.active ? <FaToggleOn /> : <FaToggleOff />}
-                          {c.active ? "Hoạt động" : "Ngừng"}
-                        </button>
-                      </div>
+                        title={f.isActive ? "Đang hoạt động" : "Ngừng hoạt động"}
+                      >
+                        {f.isActive ? <FaToggleOn /> : <FaToggleOff />}
+                        {f.isActive ? "Hoạt động" : "Ngừng"}
+                      </button>
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-3 text-right">
                       <div className="flex justify-end gap-2">
-                        {/* Xem lịch của từng sân (nếu bạn muốn lọc theo sân) */}
                         <Link
-                          href={`/admin/schedule?courtId=${encodeURIComponent(c.id)}`}
+                          href={`/admin/fields/${f._id}`}
                           className="inline-flex items-center gap-2 px-3 py-1 rounded-lg border hover:bg-gray-50"
-                          title="Xem lịch sân này"
                         >
-                          <FaCalendarAlt /> Lịch
+                          <FaEye /> Xem
                         </Link>
-
                         <Link
-                          href={`/admin/courts/${c.id}/edit`}
+                          href={`/admin/fields/edit/${f._id}`}
                           className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-amber-500 hover:bg-amber-600 text-white"
                         >
                           <FaEdit /> Sửa
                         </Link>
                         <button
-                          onClick={() => handleDelete(c.id)}
-                          disabled={busyId === c.id}
+                          onClick={() => handleDelete(f._id)}
+                          disabled={busyId === f._id}
                           className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-red-600 hover:bg-red-700 text-white"
                         >
                           <FaTrash /> Xóa
@@ -249,20 +264,6 @@ export default function CourtsPage() {
             </div>
           </div>
         )}
-      </div>
-
-      {/* Gợi ý: đồng bộ với trang lịch */}
-      <div className="mt-6 text-xs text-gray-500 space-y-1">
-        <p>
-          Nút <strong>“Xem lịch đặt sân”</strong> ở trên dẫn tới <code>/admin/schedule</code>.
-          Hãy đặt file lịch của bạn tại: <code>src/app/admin/schedule/page.jsx</code>
-          (dán code “Lịch Đặt Sân Bóng Đá” bạn đã gửi vào đó).
-        </p>
-        <p>
-          Nếu muốn lọc lịch theo từng sân, đọc param <code>courtId</code> trong trang lịch:
-          <code> const params = new URLSearchParams(window.location.search); const courtId = params.get("courtId");</code>
-          rồi highlight/cố định hàng tương ứng (VD: “Sân 5-1”).
-        </p>
       </div>
     </div>
   );

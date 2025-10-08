@@ -28,7 +28,7 @@ export default function Header() {
       <div className="navbar-center hidden lg:flex flex-1">
         <ul className="menu menu-horizontal px-1 text-xl font-semibold">
           <li><Link href="/site">Trang chủ</Link></li>
-          <li><Link href="/site/about">Đặt sân</Link></li>
+          <li><Link href="/site/bookings">Đặt sân</Link></li>
           <li><Link href="/site/profile">Thông tin</Link></li>
           <li><Link href="/site/contact">Góp Ý</Link></li>
         </ul>
