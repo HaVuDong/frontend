@@ -15,6 +15,7 @@ export default function ImageGallery() {
       try {
         const res = await getFields();
         const data = Array.isArray(res.data) ? res.data : res.data?.data || [];
+        
         setFields(data);
       } catch (error) {
         console.error("❌ Lỗi tải danh sách sân:", error);

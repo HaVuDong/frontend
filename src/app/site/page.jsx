@@ -10,7 +10,7 @@ import axiosClient from "@/utils/axiosClient";
 export default function Home() {
   const [tournaments, setTournaments] = useState([]);
   const [promotions, setPromotions] = useState([]);
-
+  console.log("🌐 API Base URL:", process.env.NEXT_PUBLIC_API_URL);
   useEffect(() => {
     // Gọi API backend
     axiosClient.get("/tournaments").then((res) => setTournaments(res.data || []));
