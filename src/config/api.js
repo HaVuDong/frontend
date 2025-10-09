@@ -1,5 +1,5 @@
 const API_CONFIG = {
-  BASE_URL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8017/v1",
+  BASE_URL: process.env.NEXT_PUBLIC_API_URL,
   HEADERS: {
     "Content-Type": "application/json",
     Accept: "application/json",
