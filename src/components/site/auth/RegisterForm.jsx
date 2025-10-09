@@ -11,6 +11,7 @@ const RegisterForm = () => {
     username: "",
     email: "",
     password: "",
+    phone: "",
   });
 
   const handleChange = (e) => {
@@ -18,23 +19,46 @@ const RegisterForm = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // 🧠 Hàm kiểm tra username hợp lệ
+  const isValidUsername = (username) => {
+    // Chỉ cho phép a-z, 0-9
+    const regex = /^[a-z0-9]+$/;
+    return regex.test(username);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.username || !formData.email || !formData.password) {
+
+    const { username, email, password, phone } = formData;
+
+    if (!username) {
+      toast.error("Vui lòng nhập username!");
+      return;
+    }
+
+    // ❌ Kiểm tra chữ hoa
+    if (/[A-ZÀ-Ỹ]/.test(username)) {
+      toast.error("Vui lòng nhập username chỉ chứa chữ thường!");
+      return;
+    }
+
+    // ❌ Kiểm tra dấu hoặc khoảng trắng
+    if (!isValidUsername(username)) {
+      toast.error("Username chỉ được chứa chữ thường không dấu và không khoảng trắng!");
+      return;
+    }
+
+    if (!email || !password || !phone) {
       toast.error("Vui lòng nhập đầy đủ thông tin!");
       return;
     }
 
     try {
-      const res = await register(
-        formData.username,
-        formData.email,
-        formData.password
-      );
+      const res = await register(username, email, password, phone);
 
       if (res?.success) {
         toast.success("Đăng ký thành công!");
-        router.push("/site/auth/login");
+        setTimeout(() => router.push("/site/auth/login"), 1500);
       } else {
         toast.error(res.message || "Đăng ký thất bại!");
       }
@@ -57,6 +81,7 @@ const RegisterForm = () => {
 
           <div className="p-8">
             <form className="space-y-5" onSubmit={handleSubmit}>
+              {/* Username */}
               <div>
                 <label className="block text-gray-700 font-semibold mb-1">
                   Tên đăng nhập
@@ -65,11 +90,11 @@ const RegisterForm = () => {
                   name="username"
                   value={formData.username}
                   onChange={handleChange}
-                  placeholder="Nhập username"
-                  className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-amber-500"
+                  placeholder="vd: dong123 (chữ thường, không dấu, không khoảng trắng)"
+                  className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-amber-500 placeholder:text-gray-400"
                 />
               </div>
-
+              {/* Email */}
               <div>
                 <label className="block text-gray-700 font-semibold mb-1">
                   Email
@@ -84,6 +109,21 @@ const RegisterForm = () => {
                 />
               </div>
 
+              {/* Phone */}
+              <div>
+                <label className="block text-gray-700 font-semibold mb-1">
+                  Số điện thoại
+                </label>
+                <input
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  placeholder="Nhập số điện thoại"
+                  className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-amber-500"
+                />
+              </div>
+
+              {/* Password */}
               <div>
                 <label className="block text-gray-700 font-semibold mb-1">
                   Mật khẩu

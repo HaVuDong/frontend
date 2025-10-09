@@ -1,12 +1,13 @@
 import axiosClient from "@/utils/axiosClient";
 
 // 🟢 Đăng ký người dùng
-export const register = async (username, email, password) => {
+export const register = async (username, email, password, phone) => {
   try {
     const response = await axiosClient.post("/users/register", {
       username,
       email,
       password,
+      phone
     });
     return response;
   } catch (error) {

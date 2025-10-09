@@ -15,13 +15,17 @@ export default function Header() {
     }
   }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem("jwt");
-    localStorage.removeItem("user");
-    localStorage.removeItem("role");
-    document.cookie = "role=; path=/;";
-    router.push("/site/auth/login");
-  };
+ const handleLogout = () => {
+  // Xóa dữ liệu đăng nhập
+  localStorage.removeItem("jwt");
+  localStorage.removeItem("user");
+  localStorage.removeItem("role");
+  document.cookie = "role=; path=/;";
+
+  // ✅ Chuyển hướng và reload lại trang
+  router.push("/site");
+  window.location.reload(); // reload lại để reset toàn bộ state
+};
 
   return (
     <div className="navbar bg-gradient-to-br to-white-500 from-green-500 text-gray-800 font-sans rounded px-4">
