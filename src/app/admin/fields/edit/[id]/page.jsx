@@ -26,6 +26,8 @@ export default function EditFieldPage() {
   const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  const BASE_URL = process.env.NEXT_PUBLIC_API_URL?.replace("/v1", "") || "";
+
   function setField(key, value) {
     setForm((f) => ({ ...f, [key]: value }));
   }
@@ -134,21 +136,27 @@ export default function EditFieldPage() {
           <label className="block text-sm font-medium mb-1">Ảnh hiện tại</label>
           {oldImages.length > 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-2">
-              {oldImages.map((url, i) => (
-                <div key={i} className="relative">
-                  <img
-                    src={`${process.env.NEXT_PUBLIC_API_URL}${url}`}
-                    className="w-full h-32 object-cover rounded-lg"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => removeOldImage(i)}
-                    className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1"
-                  >
-                    <FaTrash size={12} />
-                  </button>
-                </div>
-              ))}
+              {oldImages.map((url, i) => {
+                const imgUrl = url
+                  ? `${BASE_URL}${url.startsWith("/") ? url : `/${url}`}`
+                  : "/image/no-image.jpg";
+                return (
+                  <div key={i} className="relative">
+                    <img
+                      src={imgUrl}
+                      className="w-full h-32 object-cover rounded-lg border"
+                      onError={(e) => (e.target.src = "/image/no-image.jpg")}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeOldImage(i)}
+                      className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1"
+                    >
+                      <FaTrash size={12} />
+                    </button>
+                  </div>
+                );
+              })}
             </div>
           ) : (
             <p className="text-gray-500 text-sm">Chưa có ảnh</p>

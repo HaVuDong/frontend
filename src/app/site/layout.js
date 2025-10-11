@@ -1,23 +1,37 @@
-"use client"
-
-import { useEffect, useState } from "react"
-import { usePathname } from "next/navigation"
-import Header from "@/components/site/layout/Header"
+"use client";
+import { useEffect, useState } from "react";
+import { AuthProvider, useAuth } from "@/hooks/useAuth";
+import Header from "@/components/site/layout/Header";
+import AuthRequiredModal from "@/components/site/AuthRequiredModal";
 
 export default function SiteLayout({ children }) {
-  const [mounted, setMounted] = useState(false)
-  const pathname = usePathname()
+  return (
+    <AuthProvider>
+      <SiteContent>{children}</SiteContent>
+    </AuthProvider>
+  );
+}
+
+function SiteContent({ children }) {
+  const { user, isReady } = useAuth();
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
-    setMounted(true)
-  }, [])
+    if (typeof window !== "undefined") {
+      window.requireLogin = (callback) => {
+        if (!user) setShowModal(true);
+        else callback();
+      };
+    }
+  }, [user]);
 
-  if (!mounted) return null // Tránh lỗi hydration khi dùng window/localStorage
+  if (!isReady) return null;
 
   return (
     <>
       <Header />
       <main>{children}</main>
+      <AuthRequiredModal show={showModal} onClose={() => setShowModal(false)} />
     </>
-  )
+  );
 }

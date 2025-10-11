@@ -40,6 +40,9 @@ export default function FieldsPage() {
     return () => clearTimeout(t);
   }, [searchText]);
 
+  // ✅ Khai báo BASE_URL chuẩn hóa
+  const BASE_URL = process.env.NEXT_PUBLIC_API_URL?.replace("/v1", "") || "";
+
   // load data
   useEffect(() => {
     let cancelled = false;
@@ -48,12 +51,11 @@ export default function FieldsPage() {
       try {
         const res = await getFields();
         if (!cancelled) {
-          // nếu backend trả {success, data}, lấy data ra
           const items = res.data?.data || res.data || res || [];
           const filtered = query
             ? items.filter((f) =>
-              f.name.toLowerCase().includes(query.toLowerCase())
-            )
+                f.name.toLowerCase().includes(query.toLowerCase())
+              )
             : items;
 
           const start = (page - 1) * PAGE_SIZE;
@@ -156,6 +158,7 @@ export default function FieldsPage() {
                 <th className="text-left px-4 py-3">Tên sân</th>
                 <th className="text-left px-4 py-3">Loại sân</th>
                 <th className="text-left px-4 py-3">Địa điểm</th>
+                <th className="text-center px-4 py-3">Hình ảnh</th>
                 <th className="text-right px-4 py-3">Giá/giờ</th>
                 <th className="text-center px-4 py-3">Trạng thái</th>
                 <th className="text-right px-4 py-3">Hành động</th>
@@ -164,77 +167,80 @@ export default function FieldsPage() {
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-12 text-center text-gray-500">
+                  <td colSpan={7} className="px-4 py-12 text-center text-gray-500">
                     Đang tải danh sách sân...
                   </td>
                 </tr>
               ) : fields.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-12 text-center text-gray-500">
+                  <td colSpan={7} className="px-4 py-12 text-center text-gray-500">
                     Không có dữ liệu phù hợp.
                   </td>
                 </tr>
               ) : (
-                fields.map((f) => (
-                  <tr key={f._id} className="border-t">
-                    <td className="px-4 py-3 font-medium">{f.name}</td>
-                    <td className="px-4 py-3">{f.type}</td>
-                    <td className="px-4 py-3">{f.location || "-"}</td>
-                    <td className="px-4 py-3">
-                      {f.images?.length ? (
+                fields.map((f) => {
+                  const imgUrl = f.images?.[0]
+                    ? `${BASE_URL}${f.images[0].startsWith("/") ? f.images[0] : `/${f.images[0]}`}`
+                    : "/image/no-image.jpg";
+
+                  return (
+                    <tr key={f._id} className="border-t">
+                      <td className="px-4 py-3 font-medium">{f.name}</td>
+                      <td className="px-4 py-3">{f.type}</td>
+                      <td className="px-4 py-3">{f.location || "-"}</td>
+                      <td className="px-4 py-3 text-center">
                         <img
-                          src={`${process.env.NEXT_PUBLIC_API_URL}${f.images[0]}`}
+                          src={imgUrl}
                           alt={f.name}
-                          className="w-16 h-16 object-cover rounded-lg border"
+                          className="w-16 h-16 object-cover rounded-lg border mx-auto"
                         />
-                      ) : (
-                        <span className="text-gray-400 text-sm">Không có ảnh</span>
-                      )}
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      {f.pricePerHour
-                        ? f.pricePerHour.toLocaleString("vi-VN") + " đ"
-                        : "-"}
-                    </td>
-                    <td className="px-4 py-3 text-center">
-                      <button
-                        onClick={() => handleToggleActive(f)}
-                        disabled={busyId === f._id}
-                        className={`inline-flex items-center gap-2 px-3 py-1 rounded-full ${f.isActive
-                            ? "bg-green-100 text-green-700"
-                            : "bg-gray-100 text-gray-600"
-                          }`}
-                        title={f.isActive ? "Đang hoạt động" : "Ngừng hoạt động"}
-                      >
-                        {f.isActive ? <FaToggleOn /> : <FaToggleOff />}
-                        {f.isActive ? "Hoạt động" : "Ngừng"}
-                      </button>
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      <div className="flex justify-end gap-2">
-                        <Link
-                          href={`/admin/fields/${f._id}`}
-                          className="inline-flex items-center gap-2 px-3 py-1 rounded-lg border hover:bg-gray-50"
-                        >
-                          <FaEye /> Xem
-                        </Link>
-                        <Link
-                          href={`/admin/fields/edit/${f._id}`}
-                          className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-amber-500 hover:bg-amber-600 text-white"
-                        >
-                          <FaEdit /> Sửa
-                        </Link>
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        {f.pricePerHour
+                          ? f.pricePerHour.toLocaleString("vi-VN") + " đ"
+                          : "-"}
+                      </td>
+                      <td className="px-4 py-3 text-center">
                         <button
-                          onClick={() => handleDelete(f._id)}
+                          onClick={() => handleToggleActive(f)}
                           disabled={busyId === f._id}
-                          className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-red-600 hover:bg-red-700 text-white"
+                          className={`inline-flex items-center gap-2 px-3 py-1 rounded-full ${
+                            f.isActive
+                              ? "bg-green-100 text-green-700"
+                              : "bg-gray-100 text-gray-600"
+                          }`}
+                          title={f.isActive ? "Đang hoạt động" : "Ngừng hoạt động"}
                         >
-                          <FaTrash /> Xóa
+                          {f.isActive ? <FaToggleOn /> : <FaToggleOff />}
+                          {f.isActive ? "Hoạt động" : "Ngừng"}
                         </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <div className="flex justify-end gap-2">
+                          <Link
+                            href={`/admin/fields/${f._id}`}
+                            className="inline-flex items-center gap-2 px-3 py-1 rounded-lg border hover:bg-gray-50"
+                          >
+                            <FaEye /> Xem
+                          </Link>
+                          <Link
+                            href={`/admin/fields/edit/${f._id}`}
+                            className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-amber-500 hover:bg-amber-600 text-white"
+                          >
+                            <FaEdit /> Sửa
+                          </Link>
+                          <button
+                            onClick={() => handleDelete(f._id)}
+                            disabled={busyId === f._id}
+                            className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-red-600 hover:bg-red-700 text-white"
+                          >
+                            <FaTrash /> Xóa
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>

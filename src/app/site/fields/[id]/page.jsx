@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import Image from "next/image"; // 👈 thêm dòng này
+import Image from "next/image";
 import { getFieldById } from "@/services/fieldService";
 
 export default function FieldDetailPage() {
@@ -15,13 +15,8 @@ export default function FieldDetailPage() {
   useEffect(() => {
     if (!id) return;
     getFieldById(id)
-      .then((res) => {
-        // API trả về { success, data }
-        setField(res.data);
-      })
-      .catch((err) => {
-        console.error("❌ Lỗi load field:", err);
-      })
+      .then((res) => setField(res.data))
+      .catch((err) => console.error("❌ Lỗi load field:", err))
       .finally(() => setLoading(false));
   }, [id]);
 
@@ -39,9 +34,11 @@ export default function FieldDetailPage() {
       </div>
     );
 
+  // ✅ Đặt BASE_URL TRƯỚC khi dùng
+  const BASE_URL = process.env.NEXT_PUBLIC_API_URL?.replace("/v1", "") || "";
+
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white rounded-xl shadow">
-      {/* Tiêu đề */}
       <h1 className="text-3xl font-bold mb-4 text-green-700 text-center">
         {field.name}
       </h1>
@@ -49,16 +46,22 @@ export default function FieldDetailPage() {
       {/* Hình ảnh sân */}
       {field.images?.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-          {field.images.map((img, idx) => (
-            <Image
-              key={idx}
-              src={`${process.env.NEXT_PUBLIC_API_URL}${img}`}
-              alt={`Ảnh ${idx + 1} của ${field.name}`}
-              width={600}
-              height={400}
-              className="object-cover w-full h-64 rounded-lg shadow-sm"
-            />
-          ))}
+          {field.images.map((img, idx) => {
+            const imgUrl = img
+              ? `${BASE_URL}${img.startsWith("/") ? img : `/${img}`}`
+              : "/image/no-image.jpg";
+
+            return (
+              <Image
+                key={idx}
+                src={imgUrl}
+                alt={`Ảnh ${idx + 1} của ${field.name}`}
+                width={600}
+                height={400}
+                className="object-cover w-full h-64 rounded-lg shadow-sm"
+              />
+            );
+          })}
         </div>
       ) : (
         <div className="mb-6 text-center text-gray-400 italic">

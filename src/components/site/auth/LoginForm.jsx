@@ -1,15 +1,28 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
-import { login, me } from "@/services/authService";
+import { login } from "@/services/authService";
+import { useSearchParams, useRouter } from "next/navigation";
 import "react-toastify/dist/ReactToastify.css";
 
 const LoginForm = () => {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirect = searchParams.get("redirect");
+  const msg = searchParams.get("msg");
+
   const [formData, setFormData] = useState({
     identifier: "",
     password: "",
     remember: true,
   });
+
+  // ⚠️ Hiển thị cảnh báo khi bị middleware chặn
+  useEffect(() => {
+    if (msg === "needLogin") {
+      toast.info("⚠️ Bạn cần đăng nhập để tiếp tục truy cập trang này!");
+    }
+  }, [msg]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -37,16 +50,22 @@ const LoginForm = () => {
     try {
       const res = await login(formData.identifier, formData.password);
       if (res?.token) {
-        // Lưu token và user
+        // ✅ Lưu token & user
         localStorage.setItem("jwt", res.token);
         localStorage.setItem("user", JSON.stringify(res.user));
         localStorage.setItem("role", res.user.role);
 
-        toast.success("Đăng nhập thành công!");
+        // ✅ Bắn sự kiện để Header tự cập nhật username
+        window.dispatchEvent(new Event("storage"));
 
-        // chuyển hướng theo role
-        if (res.user.role === "admin") window.location.href = "/admin";
-        else window.location.href = "/site";
+        toast.success("🎉 Đăng nhập thành công!");
+
+        // ✅ Điều hướng sau khi đăng nhập
+        setTimeout(() => {
+          if (redirect) router.push(redirect);
+          else if (res.user.role === "admin") router.push("/admin");
+          else router.push("/site");
+        }, 1000);
       } else {
         toast.error(res.message || "Đăng nhập thất bại!");
       }
@@ -60,13 +79,13 @@ const LoginForm = () => {
       <ToastContainer />
       <div className="w-full max-w-4xl bg-white rounded-xl shadow-lg overflow-hidden">
         <div className="grid grid-cols-1 md:grid-cols-2">
+          {/* --- LEFT --- */}
           <div className="bg-gradient-to-br from-amber-300 to-amber-500 flex flex-col justify-center items-center text-white p-10">
             <h1 className="text-4xl md:text-5xl font-bold mb-2">Hà Vũ Đông</h1>
-            <p className="text-lg md:text-xl font-medium">
-              Chào mừng bạn quay lại
-            </p>
+            <p className="text-lg md:text-xl font-medium">Chào mừng bạn quay lại</p>
           </div>
 
+          {/* --- RIGHT --- */}
           <div className="p-8 bg-gradient-to-br to-blue-500 from-red-500">
             <form className="space-y-5" onSubmit={handleSubmit}>
               <div>

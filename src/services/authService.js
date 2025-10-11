@@ -1,43 +1,33 @@
 import axiosClient from "@/utils/axiosClient";
+import Cookies from "js-cookie";
 
-// 🟢 Đăng ký người dùng
+// 🟢 Đăng ký
 export const register = async (username, email, password, phone) => {
-  try {
-    const response = await axiosClient.post("/users/register", {
-      username,
-      email,
-      password,
-      phone
-    });
-    return response;
-  } catch (error) {
-    console.error("❌ Lỗi đăng ký:", error);
-    throw error.response?.data || error;
-  }
+  const res = await axiosClient.post("/users/register", {
+    username,
+    email,
+    password,
+    phone,
+  });
+  return res;
 };
 
-// 🟢 Đăng nhập người dùng
+// 🟢 Đăng nhập
 export const login = async (identifier, password) => {
-  try {
-    // gọi đúng endpoint backend: /v1/users/login
-    const response = await axiosClient.post("/users/login", {
-      identifier, // có thể là username hoặc email
-      password,
-    });
-    return response; // { success, token, user }
-  } catch (error) {
-    console.error("❌ Lỗi đăng nhập:", error);
-    throw error.response?.data || error;
+  const res = await axiosClient.post("/users/login", { identifier, password });
+
+  // ✅ Lưu cookie để middleware đọc
+  if (res?.token) {
+    Cookies.set("jwt", res.token, { expires: 7 });
+    Cookies.set("role", res.user.role, { expires: 7 });
+    localStorage.setItem("user", JSON.stringify(res.user));
   }
+
+  return res;
 };
 
-// 🟢 Lấy thông tin user đang đăng nhập
+// 🟢 Lấy thông tin user hiện tại (nếu backend có /me)
 export const me = async () => {
-  try {
-    const response = await axiosClient.get("/users/me");
-    return response;
-  } catch (error) {
-    console.error("❌ Lỗi lấy thông tin user:", error);
-    throw error.response?.data || error;
-  }
+  const res = await axiosClient.get("/users/me");
+  return res;
 };

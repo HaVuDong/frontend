@@ -1,33 +1,18 @@
-import API_CONFIG from "@/config/api";
+/* eslint-disable no-console */
 import axios from "axios";
 
 const axiosClient = axios.create({
-  baseURL: API_CONFIG.BASE_URL,
-  timeout: 5000,
-  headers: API_CONFIG.HEADERS,
+  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8017/v1",
+  withCredentials: true, // ✅ gửi cookie theo domain
 });
 
-// Response interceptor
+// Xử lý lỗi chung
 axiosClient.interceptors.response.use(
   (response) => response.data,
   (error) => {
     console.error("❌ API Error:", error.response?.data || error.message);
-    return Promise.reject(error);
+    throw error;
   }
-);
-
-// Request interceptor (JWT nếu có)
-axiosClient.interceptors.request.use(
-  (config) => {
-    if (typeof window !== "undefined") {
-      const token = localStorage.getItem("jwt");
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
 );
 
 export default axiosClient;

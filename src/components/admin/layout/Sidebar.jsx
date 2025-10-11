@@ -64,14 +64,7 @@ const Sidebar = () => {
                   Danh sách đặt sân
                 </Link>
               </li>
-              <li>
-                <Link
-                  href="/admin/bookings/add"
-                  className="block text-white px-2 py-1 rounded hover:bg-green-700"
-                >
-                  Chỉnh sửa lịch đặt
-                </Link>
-              </li>
+
             </ul>
           </details>
         </li>
