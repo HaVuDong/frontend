@@ -60,14 +60,23 @@ export default function BookingSchedulePage() {
     })();
   }, []);
 
-  // 🔹 Kiểm tra đã đặt chưa
+  // 🔹 Kiểm tra đã đặt chưa (fix logic cancelled_admin)
   function isBooked(dayIso, field, slotStart) {
-    return bookings.find(
-      (b) =>
-        b.bookingDate?.slice(0, 10) === dayIso &&
-        String(b.fieldId) === String(field._id) &&
-        b.startTime === slotStart
-    );
+    return bookings.find((b) => {
+      const isSameDate = b.bookingDate?.slice(0, 10) === dayIso;
+      const isSameField = String(b.fieldId) === String(field._id);
+      const isSameSlot = b.startTime === slotStart;
+
+      // ⚙️ Nếu bị admin hủy, chỉ ẩn với user khác (cho phép người khác đặt lại)
+      if (
+        b.status === "cancelled_admin" &&
+        String(b.userId) !== String(user?._id || user?.id)
+      ) {
+        return false;
+      }
+
+      return isSameDate && isSameField && isSameSlot;
+    });
   }
 
   // 🔹 Kiểm tra quá giờ
