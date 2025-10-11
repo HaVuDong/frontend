@@ -74,7 +74,7 @@ export default function BookingSchedulePage() {
   function isPastDeadline(dayIso, slotStart) {
     const now = new Date();
     const slotTime = new Date(`${dayIso}T${slotStart}:00`);
-    return (slotTime - now) / 60000 < 30; // nếu còn <30 phút thì không đặt được
+    return (slotTime - now) / 60000 < 30;
   }
 
   // 🔹 Mở popup đặt sân
@@ -160,13 +160,54 @@ export default function BookingSchedulePage() {
                         {timeSlots.map((slot, slotIdx) => {
                           const booking = isBooked(day.iso, field, slot.start);
                           const tooLate = isPastDeadline(day.iso, slot.start);
+                          const slotEndTime = new Date(`${day.iso}T${slot.end}:00`);
+                          const now = new Date();
+
+                          const isCompleted =
+                            booking && slotEndTime < now && booking.status === "confirmed";
+
+                          // 🔹 Hiển thị text theo trạng thái backend
+                          const label = booking
+                            ? booking.status === "pending"
+                              ? "⏳ Chờ duyệt"
+                              : booking.status === "confirmed"
+                              ? isCompleted
+                                ? "🏁 Hoàn thành"
+                                : "✅ Đã đặt"
+                              : booking.status === "cancelled_refunded"
+                              ? "💸 Đã hủy (Hoàn tiền)"
+                              : booking.status === "cancelled_no_refund"
+                              ? "🚫 Đã hủy (Không hoàn tiền)"
+                              : booking.status === "cancelled_admin"
+                              ? "❌ Hủy bởi admin"
+                              : booking.status === "completed"
+                              ? "🏁 Hoàn thành"
+                              : "❔ Không rõ"
+                            : tooLate
+                            ? "🚫 Quá giờ"
+                            : "Trống";
+
+                          // 🔹 Màu sắc tương ứng
                           const color = booking
                             ? booking.status === "pending"
                               ? "bg-yellow-400 text-black"
-                              : "bg-green-600 text-white"
+                              : booking.status === "confirmed"
+                              ? isCompleted
+                                ? "bg-blue-500 text-white"
+                                : "bg-green-600 text-white"
+                              : booking.status === "cancelled_refunded"
+                              ? "bg-teal-500 text-white"
+                              : booking.status === "cancelled_no_refund"
+                              ? "bg-gray-600 text-white"
+                              : booking.status === "cancelled_admin"
+                              ? "bg-red-600 text-white"
+                              : booking.status === "completed"
+                              ? "bg-blue-500 text-white"
+                              : "bg-slate-300 text-black"
                             : tooLate
                             ? "bg-gray-400 text-white"
                             : "bg-green-100 hover:bg-green-200 cursor-pointer";
+
                           return (
                             <td
                               key={slotIdx}
@@ -175,13 +216,7 @@ export default function BookingSchedulePage() {
                               }
                               className={`border px-2 py-2 text-center transition-colors ${color}`}
                             >
-                              {booking
-                                ? booking.status === "pending"
-                                  ? "⏳ Chờ duyệt"
-                                  : "✅ Đã đặt"
-                                : tooLate
-                                ? "🚫 Quá giờ"
-                                : "Trống"}
+                              {label}
                             </td>
                           );
                         })}
