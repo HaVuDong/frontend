@@ -41,7 +41,7 @@ const Footer = () => {
                 </div>
                 <div>
                   <h3 className="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-500">
-                    HÀ VŨ ĐÔNG
+                    Sân Bóng NĐ
                   </h3>
                   <p className="text-xs text-gray-300">Admin System</p>
                 </div>
@@ -93,7 +93,7 @@ const Footer = () => {
                   <div className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center group-hover:bg-yellow-400 transition-all duration-300">
                     <Mail className="w-4 h-4 group-hover:text-white" />
                   </div>
-                  <span>havudong@example.com</span>
+                  <span>sanbongnd@example.com</span>
                 </li>
                 <li className="flex items-start gap-3 text-sm text-gray-300 group">
                   <div className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center group-hover:bg-yellow-400 transition-all duration-300">
@@ -135,7 +135,7 @@ const Footer = () => {
             <div className="flex items-center gap-2 text-sm text-gray-300">
               <span>© {currentYear}</span>
               <span className="font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-500">
-                HÀ VŨ ĐÔNG
+                Sân Bóng NĐ
               </span>
               <span>— All rights reserved</span>
             </div>

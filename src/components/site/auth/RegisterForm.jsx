@@ -100,7 +100,7 @@ const RegisterForm = () => {
               </div>
               
               <h1 className="text-5xl md:text-6xl font-black mb-4 tracking-tight">
-                SportField
+                Sân bóng NĐ
               </h1>
               <div className="h-1 w-24 mx-auto bg-gradient-to-r from-transparent via-white to-transparent mb-4 rounded-full"></div>
               <p className="text-xl md:text-2xl font-semibold mb-6">
