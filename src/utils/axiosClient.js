@@ -3,23 +3,41 @@ import axios from "axios";
 
 const axiosClient = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8017/v1",
-  withCredentials: false // ❌ Không cần gửi cookie nữa vì dùng Authorization header
+  withCredentials: false // ❌ Không gửi cookie, chỉ dùng Bearer token
 });
 
-// ✅ Thêm interceptor để tự động gắn token vào header
-axiosClient.interceptors.request.use((config) => {
-  const token = localStorage.getItem("jwt");
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
+// 🧩 Interceptor: tự động gắn JWT token
+axiosClient.interceptors.request.use(
+  (config) => {
+    if (typeof window !== "undefined") {
+      const token = localStorage.getItem("jwt");
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
-// Xử lý lỗi chung
+// ⚙️ Interceptor: xử lý phản hồi & lỗi
 axiosClient.interceptors.response.use(
   (response) => response.data,
   (error) => {
-    console.error("❌ API Error:", error.response?.data || error.message);
+    const message =
+      error.response?.data?.message ||
+      error.response?.statusText ||
+      error.message;
+
+    console.error("❌ API Error:", message);
+
+    // Nếu token hết hạn → tự logout
+    if (error.response?.status === 401) {
+      localStorage.removeItem("jwt");
+      localStorage.removeItem("user");
+      window.dispatchEvent(new Event("storage"));
+    }
+
     throw error;
   }
 );

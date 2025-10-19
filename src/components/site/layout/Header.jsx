@@ -47,11 +47,13 @@ export default function Header() {
   };
 
   const navItems = [
-    { href: "/site", label: "Trang chủ", icon: "🏠" },
-    { href: "/site/bookings", label: "Đặt sân", icon: "⚽" },
-    { href: "/site/bookings/my", label: "Lịch đã đặt", icon: "📅" },
-    { href: "/site/contact", label: "Góp Ý", icon: "💬" },
-  ];
+  { href: "/site", label: "Trang chủ", icon: "🏠" },
+  { href: "/site/products", label: "Sản phẩm", icon: "🛒" },
+  { href: "/site/bookings", label: "Đặt sân", icon: "⚽" },
+  { href: "/site/bookings/my", label: "Lịch đã đặt", icon: "📅" },
+  { href: "/site/contact", label: "Góp Ý", icon: "💬" },
+];
+
 
   return (
     <>
@@ -80,7 +82,7 @@ export default function Header() {
                     ? "text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-teal-600" 
                     : "text-white"
                 }`}>
-                  SportField
+                  Sân Bóng NĐ
                 </h1>
                 <p className={`text-xs font-semibold transition-colors duration-300 ${
                   isScrolled ? "text-gray-600" : "text-green-100"

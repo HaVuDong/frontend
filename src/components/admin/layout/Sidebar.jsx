@@ -15,6 +15,7 @@ import {
   Shield,
   Bell,
   CreditCard,
+   Box,
 } from 'lucide-react';
 
 const Sidebar = () => {
@@ -67,6 +68,16 @@ const Sidebar = () => {
         { title: 'Phân quyền', href: '/admin/users/roles', icon: Shield },
       ],
     },
+    {
+  title: 'Quản lý sản phẩm',
+  icon: Box,
+  key: 'products',
+  submenu: [
+    { title: 'Danh sách sản phẩm', href: '/admin/products', icon: List },
+    { title: 'Thêm sản phẩm', href: '/admin/products/add', icon: Plus },
+  ],
+},
+
   ];
 
   const isActive = (href) => pathname === href;
@@ -205,7 +216,7 @@ const Sidebar = () => {
                 Đ
               </div>
               <div className="flex-1">
-                <p className="text-sm font-bold text-white">Hà Vũ Đông</p>
+                <p className="text-sm font-bold text-white">Sân Bóng NĐ</p>
                 <p className="text-xs text-gray-300">Administrator</p>
               </div>
             </div>
