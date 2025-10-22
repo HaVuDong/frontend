@@ -67,17 +67,16 @@ export default function BookingSchedulePage() {
     })();
   }, []);
 
-  // 🔹 Kiểm tra đã đặt chưa (fix logic cancelled_admin)
+  // 🔹 Kiểm tra đã đặt chưa
   function isBooked(dayIso, field, slotStart) {
     return bookings.find((b) => {
       const isSameDate = b.bookingDate?.slice(0, 10) === dayIso;
       const isSameField = String(b.fieldId) === String(field._id);
       const isSameSlot = b.startTime === slotStart;
 
-      // ⚙️ Nếu bị admin hủy, chỉ ẩn với user khác (cho phép người khác đặt lại)
       if (
         b.status === "cancelled_admin" &&
-        String(b.userId) !== String(user?._id || user?.id)
+        String(b.userId) !== String(user?._id || user?.id || user?.userId)
       ) {
         return false;
       }
@@ -93,52 +92,98 @@ export default function BookingSchedulePage() {
     return (slotTime - now) / 60000 < 30;
   }
 
-  // 🔹 Mở popup đặt sân
+  // ⭐ 🔹 Mở popup đặt sân - ĐÃ FIX
   function openPopup(dayIdx, field, slotIdx) {
-    if (!isReady) return;
-    if (!user || !(user._id || user.id)) {
+    console.log("📋 [openPopup] Called!");
+    console.log("📋 isReady:", isReady);
+    console.log("📋 user:", user);
+    
+    if (!user) {
+      console.log("⚠️ No user, showing login modal");
+      toast.warning("Vui lòng đăng nhập để đặt sân!");
       setShowLoginModal(true);
       return;
     }
 
+    const userId = user._id || user.id || user.userId;
+    
+    if (!userId) {
+      console.log("⚠️ No userId found in user object");
+      toast.warning("Không tìm thấy thông tin user. Vui lòng đăng nhập lại!");
+      setShowLoginModal(true);
+      return;
+    }
+
+    console.log("✅ User OK, userId:", userId);
+
     const slot = timeSlots[slotIdx];
     const dateIso = days[dayIdx].iso;
 
+    console.log("✅ Opening popup for:", {
+      date: dateIso,
+      field: field.name,
+      slot: slot.label,
+    });
+
+    // ⭐ FIX: Thêm đầy đủ nội dung form
     setForm({
       date: dateIso,
       start: slot.start,
       end: slot.end,
       fieldName: field.name,
       fieldId: field._id,
-      name: user.username || user.fullName || "",
+      name: user.username || user.fullName || user.email?.split('@')[0] || "",
       phone: user.phone || "",
       email: user.email || "",
       note: "",
     });
+    
     setPopupOpen(true);
+    console.log("✅ Popup state set to true");
   }
 
   // 🔹 Gửi API đặt sân
   async function handleConfirm() {
     try {
+      console.log("📤 [handleConfirm] Submitting...");
+      console.log("📤 user:", user);
+      console.log("📤 form:", form);
+      
+      const userId = user._id || user.id || user.userId;
+      
+      if (!userId) {
+        toast.error("Không tìm thấy user ID!");
+        console.error("❌ Missing userId");
+        return;
+      }
+
       const payload = {
         fieldId: form.fieldId,
-        userId: user._id || user.id,
+        userId: userId,
         userName: form.name,
         userPhone: form.phone,
         userEmail: form.email,
         bookingDate: form.date,
         startTime: form.start,
         endTime: form.end,
-        notes: form.note,
+        notes: form.note || "",
       };
-      await createBooking(payload);
+      
+      console.log("📤 Payload:", payload);
+      
+      const result = await createBooking(payload);
+      
+      console.log("✅ Booking created:", result);
+      
       toast.success("✅ Đặt sân thành công!");
       setPopupOpen(false);
+      
       // Reload data
       const b = await getBookings();
       setBookings(b?.data || b || []);
     } catch (err) {
+      console.error("❌ Error:", err);
+      console.error("❌ Response:", err?.response?.data);
       toast.error(err?.response?.data?.message || "Không thể đặt sân!");
     }
   }
@@ -290,7 +335,6 @@ export default function BookingSchedulePage() {
                           const isCompleted =
                             booking && slotEndTime < now && booking.status === "confirmed";
 
-                          // 🔹 Hiển thị text theo trạng thái backend
                           const label = booking
                             ? booking.status === "pending"
                               ? "⏳"
@@ -331,7 +375,6 @@ export default function BookingSchedulePage() {
                             ? "Quá giờ"
                             : "Trống - Click để đặt";
 
-                          // 🔹 Màu sắc tương ứng
                           const color = booking
                             ? booking.status === "pending"
                               ? "bg-gradient-to-br from-yellow-400 to-amber-400 text-white shadow-md"
@@ -395,7 +438,6 @@ export default function BookingSchedulePage() {
         {popupOpen && (
           <div className="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-[9999] p-4 animate-fadeIn">
             <div className="bg-white rounded-3xl w-full max-w-md shadow-2xl transform transition-all duration-300 scale-100 hover:scale-[1.02]">
-              {/* Header */}
               <div className="bg-gradient-to-r from-green-500 to-teal-500 px-6 py-5 rounded-t-3xl">
                 <h3 className="text-2xl font-black text-white text-center flex items-center justify-center gap-3">
                   <span className="text-3xl">⚽</span>
@@ -403,9 +445,7 @@ export default function BookingSchedulePage() {
                 </h3>
               </div>
 
-              {/* Content */}
               <div className="p-6 space-y-4">
-                {/* Field Info */}
                 <div className="bg-gradient-to-r from-green-50 to-teal-50 rounded-2xl p-4 space-y-3">
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-teal-500 rounded-xl flex items-center justify-center shadow-lg">
@@ -431,7 +471,6 @@ export default function BookingSchedulePage() {
                   </div>
                 </div>
 
-                {/* Note Input */}
                 <div>
                   <label className="block text-sm font-bold text-gray-700 mb-2">
                     📝 Ghi chú (tùy chọn)
@@ -445,7 +484,6 @@ export default function BookingSchedulePage() {
                   />
                 </div>
 
-                {/* Action Buttons */}
                 <div className="flex gap-3 pt-2">
                   <button
                     onClick={() => setPopupOpen(false)}
@@ -465,13 +503,11 @@ export default function BookingSchedulePage() {
           </div>
         )}
 
-        {/* Modal đăng nhập */}
         <AuthRequiredModal
           show={showLoginModal}
           onClose={() => setShowLoginModal(false)}
         />
 
-        {/* Add CSS Animation */}
         <style jsx>{`
           @keyframes fadeIn {
             from {

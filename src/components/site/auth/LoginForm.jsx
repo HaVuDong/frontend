@@ -1,9 +1,11 @@
 "use client";
+
 import React, { useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import { login } from "@/services/authService";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import Cookies from "js-cookie";
 import "react-toastify/dist/ReactToastify.css";
 
 const LoginForm = () => {
@@ -21,7 +23,6 @@ const LoginForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  // ⚠️ Hiển thị cảnh báo khi bị middleware chặn
   useEffect(() => {
     if (msg === "needLogin") {
       toast.info("⚠️ Bạn cần đăng nhập để tiếp tục truy cập trang này!");
@@ -54,27 +55,36 @@ const LoginForm = () => {
     setIsLoading(true);
     try {
       const res = await login(formData.identifier, formData.password);
-      if (res?.token) {
-        // ✅ Lưu token & user
-        localStorage.setItem("jwt", res.token);
-        localStorage.setItem("user", JSON.stringify(res.user));
-        localStorage.setItem("role", res.user.role);
-
-        // ✅ Bắn sự kiện để Header tự cập nhật username
+      
+      console.log("✅ [LoginForm] Login response:", res);
+      
+      if (res?.token && res?.user) {
+        console.log("✅ [LoginForm] User role:", res.user.role);
+        
+        // ⭐ Dispatch events
+        window.dispatchEvent(new Event("userLoggedIn"));
         window.dispatchEvent(new Event("storage"));
 
-        toast.success("🎉 Đăng nhập thành công!");
+        toast.success(`🎉 Đăng nhập thành công! Xin chào ${res.user.username || res.user.email}`);
 
-        // ✅ Điều hướng sau khi đăng nhập
+        // ⭐ FIX: Dùng window.location.replace() và giảm timeout
         setTimeout(() => {
-          if (redirect) router.push(redirect);
-          else if (res.user.role === "admin") router.push("/admin");
-          else router.push("/site");
-        }, 1000);
+          if (redirect) {
+            console.log("↪️ Redirect to:", redirect);
+            window.location.replace(redirect);
+          } else if (res.user.role === "admin") {
+            console.log("↪️ Admin → Redirect to: /admin");
+            window.location.replace("/admin");  // ⬅️ THAY ĐỔI
+          } else {
+            console.log("↪️ User → Redirect to: /site");
+            window.location.replace("/site");  // ⬅️ THAY ĐỔI
+          }
+        }, 500);  // ⬅️ GIẢM từ 1000ms → 500ms
       } else {
         toast.error(res.message || "Đăng nhập thất bại!");
       }
     } catch (err) {
+      console.error("❌ Login error:", err);
       toast.error(err.message || "Đăng nhập thất bại!");
     } finally {
       setIsLoading(false);
@@ -94,9 +104,8 @@ const LoginForm = () => {
       <div className="w-full max-w-5xl bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl overflow-hidden border border-white/50 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-2">
           
-          {/* --- LEFT SIDE --- */}
+          {/* LEFT SIDE */}
           <div className="relative bg-gradient-to-br from-green-500 via-emerald-500 to-teal-500 flex flex-col justify-center items-center text-white p-12 overflow-hidden">
-            {/* Decorative circles */}
             <div className="absolute top-10 right-10 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
             <div className="absolute bottom-10 left-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
             
@@ -108,7 +117,7 @@ const LoginForm = () => {
               </div>
               
               <h1 className="text-5xl md:text-6xl font-black mb-4 tracking-tight">
-                Sân bóng NĐ
+                Sân Bóng NĐ
               </h1>
               <div className="h-1 w-24 mx-auto bg-gradient-to-r from-transparent via-white to-transparent mb-4 rounded-full"></div>
               <p className="text-xl md:text-2xl font-semibold mb-6">
@@ -118,7 +127,6 @@ const LoginForm = () => {
                 Hệ thống quản lý và đặt sân bóng hiện đại, tiện lợi và nhanh chóng
               </p>
 
-              {/* Feature badges */}
               <div className="mt-8 flex flex-wrap justify-center gap-3">
                 <div className="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full text-sm font-semibold flex items-center gap-2">
                   <span>⚡</span> Đặt sân nhanh
@@ -133,7 +141,7 @@ const LoginForm = () => {
             </div>
           </div>
 
-          {/* --- RIGHT SIDE --- */}
+          {/* RIGHT SIDE - FORM */}
           <div className="p-10 lg:p-12">
             <div className="mb-8">
               <h2 className="text-3xl font-black bg-gradient-to-r from-green-600 to-teal-600 bg-clip-text text-transparent mb-2">
@@ -216,7 +224,7 @@ const LoginForm = () => {
                     className="w-5 h-5 rounded border-2 border-gray-300 text-green-500 focus:ring-2 focus:ring-green-500 cursor-pointer"
                   />
                   <span className="text-sm font-semibold text-gray-700 group-hover:text-green-600 transition-colors">
-                    Ghi nhớ đăng nhập
+                    Ghi nhớ đăng nhập (7 ngày)
                   </span>
                 </label>
                 <Link
