@@ -110,7 +110,7 @@ export default function Header() {
 
             {/* Đặt sân */}
             <Link 
-              href="/site/booking" 
+              href="/site/bookings" 
               className="text-white/90 hover:text-white hover:bg-white/10 px-3 py-2 rounded-lg transition-all font-medium flex items-center gap-2"
             >
               <span>⚽</span> Đặt sân
@@ -122,14 +122,6 @@ export default function Header() {
               className="text-white/90 hover:text-white hover:bg-white/10 px-3 py-2 rounded-lg transition-all font-medium flex items-center gap-2"
             >
               <span>🛒</span> Giỏ hàng
-            </Link>
-
-            {/* ⭐ ĐƠN HÀNG */}
-            <Link 
-              href="/site/orders" 
-              className="text-white/90 hover:text-white hover:bg-white/10 px-3 py-2 rounded-lg transition-all font-medium flex items-center gap-2"
-            >
-              <span>📋</span> Đơn hàng
             </Link>
 
             {/* ⭐ LỊCH SÂN */}

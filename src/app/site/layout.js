@@ -3,7 +3,7 @@
 
 import { AuthProvider } from "@/hooks/useAuth";
 import { ToastContainer } from "react-toastify";
-import Header from "@/components/site/layout/Header"; // ⭐ IMPORT HEADER
+import Header from "@/components/site/layout/Header";
 import "react-toastify/dist/ReactToastify.css";
 
 export default function SiteLayout({ children }) {

@@ -21,6 +21,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="vi" data-theme="light" suppressHydrationWarning>
       <body
+         suppressHydrationWarning={true}
         className={`${geistSans.variable ?? ""} ${geistMono.variable ?? ""} relative min-h-screen bg-gray-50`}
       >
         {children}

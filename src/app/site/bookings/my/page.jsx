@@ -6,23 +6,24 @@ import { toast } from "react-toastify";
 import Link from "next/link";
 
 export default function MyBookingsPage() {
-  const { user, isReady } = useAuth();
+  const { user, loading } = useAuth();
   const [bookings, setBookings] = useState([]);
-  const [loading, setLoading] = useState(true);
-
+    const [loadingBooking, setLoadingBooking] = useState(true);
   // ✅ Lấy dữ liệu booking của user
   useEffect(() => {
-    if (!isReady) {
-      console.log("⏳ Auth chưa sẵn sàng, chờ isReady...");
+     // 1. Auth vẫn đang kiểm tra token → chưa làm gì
+    if (loading) {
+      console.log("⏳ Auth chưa sẵn sàng, đang check token...");
       return;
     }
 
-    if (!user) {
-      console.warn("⚠️ Chưa có user, không thể tải lịch đặt!");
+     if (!user) {
+      console.warn("⚠️ Không có user, không thể tải lịch đặt!");
+      setLoadingBooking(false); // ✨ Tắt spinner, hiển thị “Chưa có lịch đặt nào”
       return;
     }
 
-    async function load() {
+   async function load() {
       console.log("🚀 Bắt đầu tải lịch đặt cho user:", user);
       console.log("🆔 userId:", user._id || user.id);
 
@@ -52,12 +53,12 @@ export default function MyBookingsPage() {
         console.error("❌ Lỗi tải lịch:", err);
         toast.error("Không thể tải lịch đã đặt!");
       } finally {
-        setLoading(false);
+        setLoadingBooking(false); // ✨ Dù thành công hay lỗi cũng tắt spinner
       }
     }
 
     load();
-  }, [isReady, user]);
+  }, [loading, user]); // 🔥 Phụ thuộc vào trạng thái auth và user
 
   // ✅ Hủy đặt sân
   async function handleCancel(id) {
