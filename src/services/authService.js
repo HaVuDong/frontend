@@ -57,6 +57,17 @@ export const me = async () => {
   return res;
 };
 
+export const resetPassword = async (data) => {
+  return await axiosClient.post("/users/reset-password", data);
+};
+
+export default {
+  register,
+  login,
+  getCurrentUser,
+  resetPassword // ⭐ Thêm
+};
+
 // ⭐ THÊM: Logout function
 export const logout = () => {
   Cookies.remove("jwt", { path: '/' });
