@@ -97,7 +97,7 @@ export default function Header() {
           {/* Desktop Navigation */}
           <div className="hidden md:flex gap-4 items-center">
             <Link
-              href="/site"
+              href="/site/products"
               className="text-white/90 hover:text-white hover:bg-white/10 px-3 py-2 rounded-lg transition-all font-medium flex items-center gap-2"
             >
               <span>📦</span> Sản phẩm
