@@ -72,6 +72,7 @@ axiosClient.interceptors.response.use(
         "Đã xảy ra lỗi không xác định.",
       data: serverData,
       raw: error, // giữ lại lỗi gốc nếu cần debug sâu
+      response: error.response // Thêm response để component có thể truy cập
     };
 
     console.error("❌ [Axios Response Error]", wrappedError);
@@ -80,20 +81,26 @@ axiosClient.interceptors.response.use(
     if (status === 401) {
       console.error("🚫 [401] Token không hợp lệ hoặc đã hết hạn");
 
-      Cookies.remove("jwt");
-      Cookies.remove("role");
-      if (typeof window !== "undefined") {
-        localStorage.removeItem("user");
-      }
-
+      // ⭐ KHÔNG auto-redirect nếu đang ở trang login/register
       if (typeof window !== "undefined") {
         const currentPath = window.location.pathname;
-        if (currentPath.startsWith("/admin")) {
-          console.log("➡️ Redirect về /admin/auth/login");
-          window.location.href = "/admin/auth/login";
+        const isAuthPage = currentPath.includes("/auth/login") || currentPath.includes("/auth/register");
+        
+        if (!isAuthPage) {
+          // Chỉ xóa cookies và redirect nếu KHÔNG phải trang auth
+          Cookies.remove("jwt");
+          Cookies.remove("role");
+          localStorage.removeItem("user");
+
+          if (currentPath.startsWith("/admin")) {
+            console.log("➡️ Redirect về /admin/auth/login");
+            window.location.href = "/admin/auth/login";
+          } else {
+            console.log("➡️ Redirect về /site/auth/login");
+            window.location.href = "/site/auth/login";
+          }
         } else {
-          console.log("➡️ Redirect về /site/auth/login");
-          window.location.href = "/site/auth/login";
+          console.log("⚠️ [401] Đang ở trang auth, không auto-redirect");
         }
       }
     }
@@ -108,7 +115,7 @@ axiosClient.interceptors.response.use(
 
     // 404 - NOT FOUND
     if (status === 404) {
-      console.error("🚫 [404] Không tìm thấy dữ liệu");
+      console.error("🚫 [404] Không tìm thấy dữ liệu", { url, method: error.config?.method });
     }
 
     // 500+ - SERVER ERROR

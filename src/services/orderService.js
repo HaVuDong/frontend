@@ -65,3 +65,10 @@ export const updateOrderStatus = async (orderId, status) => {
 export const getOrderStats = async () => {
   return await axiosClient.get("/orders/admin/stats");
 };
+
+// ✅ SỬA LẠI: Xác nhận thanh toán chuyển khoản
+export const confirmManualPayment = async (orderId, userId) => {
+  return await axiosClient.post(`/payments/bank/${orderId}/confirm`, {
+    userId
+  });
+};

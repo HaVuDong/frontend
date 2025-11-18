@@ -105,10 +105,10 @@ export default function CheckoutPage() {
     try {
       setSubmitting(true);
 
-      const shippingAddress = `${fullName} - ${phone} - ${address}`;
+      const shippingAddress = `${fullName.trim()} - ${phone.trim()} - ${address.trim()}`;
       const payload = {
         userId: user._id || user.id,
-        shippingAddress,
+        shippingAddress: shippingAddress.trim(), // ✅ Trim lần nữa để chắc chắn
         paymentMethod: paymentMethod, // ✔ dùng đúng giá trị người dùng chọn
       };
 

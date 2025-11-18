@@ -74,6 +74,11 @@ export const getUserPayments = async (userId, params = {}) => {
   return await axiosClient.get(`/payments/user?${queryParams.toString()}`);
 };
 
+// Admin - Xác nhận thanh toán bank transfer
+export const adminConfirmBankTransfer = async (orderId) => {
+  return await axiosClient.post(`/payments/bank/${orderId}/admin-confirm`);
+};
+
 // Admin - Lấy tất cả payments
 export const getAllPayments = async (params = {}) => {
   const { page = 1, limit = 10, status, referenceType, method } = params;

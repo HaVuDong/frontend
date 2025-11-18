@@ -117,9 +117,10 @@ export default function AdminDashboard() {
     labels: ordersByStatus.map(item => {
       const statusMap = {
         'pending': 'Chờ xử lý',
+        'awaiting_confirmation': 'Chờ xác nhận thanh toán',
         'confirmed': 'Đã xác nhận',
         'processing': 'Đang xử lý',
-        'shipping': 'Đang giao',
+        'shipped': 'Đang giao',
         'delivered': 'Đã giao',
         'cancelled': 'Đã hủy'
       };
@@ -193,9 +194,9 @@ export default function AdminDashboard() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-blue-50 to-purple-50 py-10 px-4 relative overflow-hidden">
       {/* Decorative background */}
-      <div className="absolute top-0 left-0 w-72 h-72 bg-emerald-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
-      <div className="absolute top-0 right-0 w-72 h-72 bg-blue-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
-      <div className="absolute -bottom-8 left-20 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000"></div>
+      <div className="absolute top-0 left-0 w-72 h-72 bg-emerald-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob" suppressHydrationWarning></div>
+      <div className="absolute top-0 right-0 w-72 h-72 bg-blue-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000" suppressHydrationWarning></div>
+      <div className="absolute -bottom-8 left-20 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000" suppressHydrationWarning></div>
 
       <div className="max-w-7xl mx-auto relative z-10">
         {/* Header */}
@@ -346,9 +347,10 @@ export default function AdminDashboard() {
               {ordersByStatus.map((item, idx) => {
                 const statusMap = {
                   'pending': { label: 'Chờ xử lý', icon: '⏳', color: 'yellow' },
+                  'awaiting_confirmation': { label: 'Chờ xác nhận thanh toán', icon: '⏰', color: 'orange' },
                   'confirmed': { label: 'Đã xác nhận', icon: '✅', color: 'blue' },
                   'processing': { label: 'Đang xử lý', icon: '🔄', color: 'orange' },
-                  'shipping': { label: 'Đang giao', icon: '🚚', color: 'purple' },
+                  'shipped': { label: 'Đang giao', icon: '🚚', color: 'purple' },
                   'delivered': { label: 'Đã giao', icon: '📦', color: 'green' },
                   'cancelled': { label: 'Đã hủy', icon: '❌', color: 'red' }
                 };

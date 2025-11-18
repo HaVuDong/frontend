@@ -65,21 +65,26 @@ const LoginForm = () => {
         window.dispatchEvent(new Event("userLoggedIn"));
         window.dispatchEvent(new Event("storage"));
 
-        toast.success(`🎉 Đăng nhập thành công! Xin chào ${res.user.username || res.user.email}`);
+        // ⭐ Xác định URL redirect trước
+        let redirectUrl;
+        if (redirect) {
+          redirectUrl = redirect;
+          console.log("↪️ Redirect to:", redirect);
+        } else if (res.user.role === "admin") {
+          redirectUrl = "/admin";
+          console.log("↪️ Admin → Redirect to: /admin");
+        } else {
+          redirectUrl = "/site";
+          console.log("↪️ User → Redirect to: /site");
+        }
 
-        // ⭐ FIX: Dùng window.location.replace() và giảm timeout
-        setTimeout(() => {
-          if (redirect) {
-            console.log("↪️ Redirect to:", redirect);
-            window.location.replace(redirect);
-          } else if (res.user.role === "admin") {
-            console.log("↪️ Admin → Redirect to: /admin");
-            window.location.replace("/admin");  // ⬅️ THAY ĐỔI
-          } else {
-            console.log("↪️ User → Redirect to: /site");
-            window.location.replace("/site");  // ⬅️ THAY ĐỔI
-          }
-        }, 500);  // ⬅️ GIẢM từ 1000ms → 500ms
+        // ⭐ Show toast và redirect ngay lập tức
+        toast.success(`🎉 Đăng nhập thành công! Đang chuyển hướng...`, {
+          autoClose: 1000
+        });
+
+        // ⭐ Redirect ngay không cần timeout
+        window.location.href = redirectUrl;
       } else {
         toast.error(res.message || "Đăng nhập thất bại!");
       }

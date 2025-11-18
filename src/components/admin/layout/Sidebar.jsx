@@ -15,7 +15,8 @@ import {
   Shield,
   Bell,
   CreditCard,
-   Box,
+  Box,
+  ShoppingBag,
 } from 'lucide-react';
 
 const Sidebar = () => {
@@ -24,6 +25,8 @@ const Sidebar = () => {
     fields: true,
     bookings: true,
     users: true,
+    products: true,
+    orders: true,
   });
 
   const toggleMenu = (menu) => {
@@ -69,15 +72,25 @@ const Sidebar = () => {
       ],
     },
     {
-  title: 'Quản lý sản phẩm',
-  icon: Box,
-  key: 'products',
-  submenu: [
-    { title: 'Danh sách sản phẩm', href: '/admin/products', icon: List },
-    { title: 'Thêm sản phẩm', href: '/admin/products/add', icon: Plus },
-  ],
-},
-
+      title: 'Quản lý sản phẩm',
+      icon: Box,
+      key: 'products',
+      submenu: [
+        { title: 'Danh sách sản phẩm', href: '/admin/products', icon: List },
+        { title: 'Thêm sản phẩm', href: '/admin/products/add', icon: Plus },
+      ],
+    },
+    {
+      title: 'Quản lý đơn hàng',
+      icon: ShoppingBag,
+      key: 'orders',
+      badge: 3,
+      submenu: [
+        { title: 'Danh sách đơn hàng', href: '/admin/orders', icon: List },
+        { title: 'Chờ xác nhận thanh toán', href: '/admin/orders?filter=awaiting_confirmation', icon: Bell },
+        { title: 'Thống kê đơn hàng', href: '/admin/orders/stats', icon: BarChart3 },
+      ],
+    },
   ];
 
   const isActive = (href) => pathname === href;
@@ -115,10 +128,11 @@ const Sidebar = () => {
                   <div>
                     <button
                       onClick={() => toggleMenu(item.key)}
-                      className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl transition-all duration-300 group ${isParentActive(item.submenu)
+                      className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl transition-all duration-300 group ${
+                        isParentActive(item.submenu)
                           ? 'bg-gradient-to-r from-yellow-400 to-orange-500 text-white shadow-lg'
                           : 'text-gray-300 hover:bg-white/10'
-                        }`}
+                      }`}
                     >
                       <div className="flex items-center gap-3">
                         <item.icon className={`w-5 h-5 ${isParentActive(item.submenu) ? 'text-white' : 'group-hover:scale-110'} transition-all duration-300`} />
@@ -145,10 +159,11 @@ const Sidebar = () => {
                           <li key={subIndex}>
                             <Link
                               href={subItem.href}
-                              className={`flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-300 group ${isActive(subItem.href)
+                              className={`flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-300 group ${
+                                isActive(subItem.href)
                                   ? 'bg-white/20 text-white shadow-lg translate-x-2'
                                   : 'text-gray-300 hover:bg-white/10 hover:translate-x-1'
-                                }`}
+                              }`}
                             >
                               <subItem.icon className="w-4 h-4 group-hover:scale-110 transition-transform" />
                               <span className="text-sm font-semibold">{subItem.title}</span>
@@ -165,10 +180,11 @@ const Sidebar = () => {
                   // Single menu item
                   <Link
                     href={item.href}
-                    className={`flex items-center justify-between px-4 py-3 rounded-2xl transition-all duration-300 group ${isActive(item.href)
+                    className={`flex items-center justify-between px-4 py-3 rounded-2xl transition-all duration-300 group ${
+                      isActive(item.href)
                         ? 'bg-gradient-to-r from-yellow-400 to-orange-500 text-white shadow-lg scale-105'
                         : 'text-gray-300 hover:bg-white/10'
-                      }`}
+                    }`}
                   >
                     <div className="flex items-center gap-3">
                       <item.icon className={`w-5 h-5 ${isActive(item.href) ? 'text-white' : 'group-hover:scale-110'} transition-all duration-300`} />
