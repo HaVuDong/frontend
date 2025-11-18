@@ -1,11 +1,13 @@
 "use client";
 
+import { Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import { FaCheckCircle } from "react-icons/fa";
 import { toast } from "react-toastify";
 
-export default function ManualPaymentPage() {
+// Component chứa logic chính
+function ManualPaymentContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -30,13 +32,12 @@ export default function ManualPaymentPage() {
   )}`;
 
   const handleConfirm = () => {
-  toast.success("Cảm ơn bạn! Cảm ơn bạn đã thanh toán ❤️");
+    toast.success("Cảm ơn bạn! Cảm ơn bạn đã thanh toán ❤️");
 
-  setTimeout(() => {
-    router.push("/site"); // quay về trang chủ
-  }, 1000); // đợi toast chạy
-};
-
+    setTimeout(() => {
+      router.push("/site"); // quay về trang chủ
+    }, 1000); // đợi toast chạy
+  };
 
   return (
     <div className="min-h-screen bg-[#0d1b2a] py-10 px-4 flex justify-center">
@@ -88,5 +89,23 @@ export default function ManualPaymentPage() {
         </button>
       </div>
     </div>
+  );
+}
+
+// Component loading khi đang tải
+function Loading() {
+  return (
+    <div className="min-h-screen bg-[#0d1b2a] flex items-center justify-center">
+      <div className="text-white text-xl">Đang tải...</div>
+    </div>
+  );
+}
+
+// Export component chính được bọc trong Suspense
+export default function ManualPaymentPage() {
+  return (
+    <Suspense fallback={<Loading />}>
+      <ManualPaymentContent />
+    </Suspense>
   );
 }
