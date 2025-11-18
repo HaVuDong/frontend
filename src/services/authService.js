@@ -1,7 +1,9 @@
 import axiosClient from "@/utils/axiosClient";
 import Cookies from "js-cookie";
 
-// 🟢 Đăng ký
+/* ======================================================
+   🟢 REGISTER (Đăng ký)
+====================================================== */
 export const register = async (username, email, password, phone) => {
   const res = await axiosClient.post("/users/register", {
     username,
@@ -12,66 +14,78 @@ export const register = async (username, email, password, phone) => {
   return res;
 };
 
-// ⭐ 🟢 Đăng nhập - FIX
+/* ======================================================
+   🟢 LOGIN (Đăng nhập)
+====================================================== */
 export const login = async (identifier, password) => {
   const res = await axiosClient.post("/users/login", { identifier, password });
 
-  console.log("✅ [authService] Login response:", res);
-
-  // ⭐ Lưu cookies NGAY LẬP TỨC
   if (res?.token && res?.user) {
-    console.log("💾 [authService] Saving to cookies...");
-    console.log("Token:", res.token);
-    console.log("Role:", res.user.role);
-    
-    // ⭐ SỬA: Thêm options cho cookies
     const cookieOptions = {
       expires: 7,
-      path: '/',  // ⬅️ QUAN TRỌNG: Cho phép truy cập từ mọi path
-      sameSite: 'lax',  // ⬅️ Bảo mật nhưng vẫn cho phép redirect
+      path: "/",          // Quan trọng: cho phép truy cập toàn site
+      sameSite: "lax",
     };
-    
+
+    // ⭐ Lưu token & role vào cookies
     Cookies.set("jwt", res.token, cookieOptions);
     Cookies.set("role", res.user.role, cookieOptions);
-    
-    // ⭐ Verify cookies đã được set
-    const verifyToken = Cookies.get("jwt");
-    const verifyRole = Cookies.get("role");
-    
-    console.log("✅ [authService] Verify - Token:", verifyToken ? "✅ Đã lưu" : "❌ Chưa lưu");
-    console.log("✅ [authService] Verify - Role:", verifyRole);
-    
-    // ⭐ Lưu localStorage
+
+    // ⭐ Lưu user vào localStorage
     localStorage.setItem("user", JSON.stringify(res.user));
-    console.log("✅ [authService] Saved to localStorage");
-  } else {
-    console.error("❌ [authService] Missing token or user in response");
   }
 
   return res;
 };
 
-// 🟢 Lấy thông tin user hiện tại
+/* ======================================================
+   🟢 GET CURRENT USER (Lấy user từ localStorage)
+====================================================== */
+export const getCurrentUser = () => {
+  try {
+    const user = localStorage.getItem("user");
+    if (!user) return null;
+    return JSON.parse(user);
+  } catch (error) {
+    console.error("❌ getCurrentUser error:", error);
+    return null;
+  }
+};
+
+/* ======================================================
+   🟢 ME (Lấy user từ API)
+====================================================== */
 export const me = async () => {
   const res = await axiosClient.get("/users/me");
   return res;
 };
 
+/* ======================================================
+   🟢 RESET PASSWORD
+====================================================== */
 export const resetPassword = async (data) => {
   return await axiosClient.post("/users/reset-password", data);
 };
 
+/* ======================================================
+   🟢 LOGOUT
+====================================================== */
+export const logout = () => {
+  Cookies.remove("jwt", { path: "/" });
+  Cookies.remove("role", { path: "/" });
+  localStorage.removeItem("user");
+
+  console.log("✅ [authService] Logged out");
+};
+
+/* ======================================================
+   🟢 EXPORT DEFAULT
+====================================================== */
 export default {
   register,
   login,
   getCurrentUser,
-  resetPassword // ⭐ Thêm
-};
-
-// ⭐ THÊM: Logout function
-export const logout = () => {
-  Cookies.remove("jwt", { path: '/' });
-  Cookies.remove("role", { path: '/' });
-  localStorage.removeItem("user");
-  console.log("✅ [authService] Logged out");
+  resetPassword,
+  me,
+  logout,
 };
