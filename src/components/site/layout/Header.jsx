@@ -111,6 +111,13 @@ export default function Header() {
             </Link>
 
             <Link
+              href="/site/news"
+              className="text-white/90 hover:text-white hover:bg-white/10 px-3 py-2 rounded-lg transition-all font-medium flex items-center gap-2"
+            >
+              <span>📰</span> Tin Bóng Đá
+            </Link>
+
+            <Link
               href="/site/cart"
               className="text-white/90 hover:text-white hover:bg-white/10 px-3 py-2 rounded-lg transition-all font-medium flex items-center gap-2"
             >
@@ -204,6 +211,14 @@ export default function Header() {
                 onClick={() => setIsMenuOpen(false)}
               >
                 <span>⚽</span> Đặt sân
+              </Link>
+
+              <Link
+                href="/site/news"
+                className="text-white/90 hover:text-white hover:bg-white/10 px-3 py-2 rounded-lg transition-all font-medium flex items-center gap-2"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <span>📰</span> Tin Bóng Đá
               </Link>
 
               <Link
